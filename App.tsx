@@ -19,12 +19,20 @@ export default function App() {
   const [mosesHere, setMosesHere] = useState("visible");
 
   useEffect(() => {
+    if (hunger <= 0) return;
+
     const interval = setInterval(() => {
-      setHunger((prev) => prev - 1);
+      setHunger((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
-    return () => clearInterval(interval); // cleanup
-  }, []);
+    return () => clearInterval(interval);
+  }, [hunger]);
 
   const carrotClick = () => {
     if (!carrotOpen && carrotCount != 0) {
@@ -123,9 +131,7 @@ export default function App() {
 
   return (
     <>
-      <p className="top">Funds: {money}</p>
-      <br />
-      <br />
+      <p className="top">Funds: ${money}</p>
       <div>
         <button className="buttton" onClick={carrotClick}>
           Carrot stack is {carrotCount}
@@ -141,8 +147,10 @@ export default function App() {
       <p>Hunger: {hunger}</p>
 
       <br />
+      <br />
+      <br />
 
-      <img onClick={consumeFood} src={sheep} alt="sheep" />
+      <img onClick={consumeFood} className="ezrasheep" src={sheep} />
 
       <div>
         <button className="right" onClick={openShop}>
