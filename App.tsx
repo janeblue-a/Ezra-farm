@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import sheep from "./Images/sheep.png";
 import moses from "./Images/moses.png";
 import "./App.css";
@@ -14,6 +14,8 @@ export default function App() {
   const [shop, setShop] = useState("invis");
   const [treevis, setTreevis] = useState("locked");
   const [treeCount, setTreeCount] = useState(0);
+  const [dialogueCount, setDialogueCount] = useState(0);
+  const [dialougeText, setDialogueText] = useState("im moses");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -82,6 +84,33 @@ export default function App() {
     }
   };
 
+  const shiftDialogue = () => {
+    setDialogueCount((prevDialogueCount) => prevDialogueCount + 1);
+    if (dialogueCount == 1) {
+      setDialogueText("youre the new farmer, right?");
+    } else if (dialogueCount == 2) {
+      setDialogueText("good. ill teach you the basics");
+    } else if (dialogueCount == 3) {
+      setDialogueText(
+        "see that button labeled carrot stack?\n click that, then click on the sheep.",
+      );
+    } else if (dialogueCount == 4) {
+      setDialogueText("done? perfect");
+    } else if (dialogueCount == 5) {
+      setDialogueText("check the shop. heres some cash.");
+      setMoney((prevMoney) => prevMoney + 150);
+    }
+  };
+
+  const addLineBreaks = (str) =>
+    str.split("\n").map((subStr, index) => (
+      <Fragment key={index}>
+        {subStr}
+
+        {index < str.split("\n").length - 1 && <br />}
+      </Fragment>
+    ));
+
   return (
     <>
       <p className="top">Funds: {money}</p>
@@ -127,7 +156,9 @@ export default function App() {
       <div>
         <p>Moses</p>
 
-        <p className="dialouge">moses will speak here</p>
+        <p className="dialouge" onClick={shiftDialogue}>
+          {addLineBreaks(dialougeText)}
+        </p>
       </div>
     </>
   );
