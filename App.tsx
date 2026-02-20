@@ -16,6 +16,7 @@ export default function App() {
   const [treeCount, setTreeCount] = useState(0);
   const [dialogueCount, setDialogueCount] = useState(0);
   const [dialougeText, setDialogueText] = useState("im moses");
+  const [mosesHere, setMosesHere] = useState("visible");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -99,10 +100,19 @@ export default function App() {
     } else if (dialogueCount == 5) {
       setDialogueText("check the shop. heres some cash.");
       setMoney((prevMoney) => prevMoney + 150);
+    } else if (dialogueCount == 6) {
+      setDialogueText(
+        "you can also buy more sheep!\n (the dev hasn't added this yet)",
+      );
+    } else if (dialogueCount == 7) {
+      setDialogueText("thats all for now.\n good luck!");
+    } else if (dialogueCount == 8) {
+      setDialogueText("");
+      setMosesHere("invisible");
     }
   };
 
-  const addLineBreaks = (str) =>
+  const addLineBreaks = (str: string) =>
     str.split("\n").map((subStr, index) => (
       <Fragment key={index}>
         {subStr}
@@ -126,7 +136,7 @@ export default function App() {
         </button>
       </div>
 
-      <img className="left" src={moses} />
+      <img className={`left ${mosesHere}`} src={moses} />
 
       <p>Hunger: {hunger}</p>
 
@@ -153,10 +163,9 @@ export default function App() {
         </button>
       </div>
 
-      <div>
-        <p>Moses</p>
-
-        <p className="dialouge" onClick={shiftDialogue}>
+      <div className={`dialouge ${mosesHere}`}>
+        <h4 className={`dialouge ${mosesHere}`}>Moses</h4>
+        <p className={`dialouge ${mosesHere}`} onClick={shiftDialogue}>
           {addLineBreaks(dialougeText)}
         </p>
       </div>
