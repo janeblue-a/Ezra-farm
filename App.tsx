@@ -1,7 +1,7 @@
+import "./App.css";
 import { useState, useEffect, Fragment } from "react";
 import sheep from "./Images/sheep.png";
 import moses from "./Images/moses.png";
-import "./App.css";
 
 let shopIsOpen = false;
 
@@ -17,6 +17,68 @@ export default function App() {
   const [dialogueCount, setDialogueCount] = useState(0);
   const [dialougeText, setDialogueText] = useState("im moses");
   const [mosesHere, setMosesHere] = useState("visible");
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const saveData = {
+      carrotCount,
+      treeCount,
+      money,
+      hunger,
+      treevis,
+      dialogueCount,
+      dialougeText,
+      mosesHere,
+    };
+
+    localStorage.setItem("sheepGameSave", JSON.stringify(saveData));
+  }, [
+    carrotCount,
+    treeCount,
+    money,
+    hunger,
+    treevis,
+    dialogueCount,
+    dialougeText,
+    mosesHere,
+    isLoaded,
+  ]);
+
+  const saveGame = () => {
+    const saveData = {
+      carrotCount,
+      treeCount,
+      money,
+      hunger,
+      treevis,
+      dialogueCount,
+      dialougeText,
+      mosesHere,
+    };
+
+    localStorage.setItem("sheepGameSave", JSON.stringify(saveData));
+  };
+
+  useEffect(() => {
+    const savedGame = localStorage.getItem("sheepGameSave");
+
+    if (savedGame) {
+      const data = JSON.parse(savedGame);
+
+      setCarrotCount(data.carrotCount ?? 10);
+      setTreeCount(data.treeCount ?? 0);
+      setMoney(data.money ?? 100);
+      setHunger(data.hunger ?? 100);
+      setTreevis(data.treevis ?? "locked");
+      setDialogueCount(data.dialogueCount ?? 0);
+      setDialogueText(data.dialougeText ?? "im moses");
+      setMosesHere(data.mosesHere ?? "visible");
+    }
+
+    setIsLoaded(true);
+  }, []);
 
   useEffect(() => {
     if (hunger <= 0) return;
@@ -131,7 +193,7 @@ export default function App() {
 
   return (
     <>
-      <p className="top">Funds: ${money}</p>
+      <p className="power">Funds: ${money}</p>
       <div>
         <button className="buttton" onClick={carrotClick}>
           Carrot stack is {carrotCount}
@@ -144,10 +206,8 @@ export default function App() {
 
       <img className={`left ${mosesHere}`} src={moses} />
 
-      <p>Hunger: {hunger}</p>
+      <p className="red">Hunger: {hunger}</p>
 
-      <br />
-      <br />
       <br />
 
       <img onClick={consumeFood} className="ezrasheep" src={sheep} />
@@ -171,12 +231,23 @@ export default function App() {
         </button>
       </div>
 
-      <div className={`dialouge ${mosesHere}`}>
+      <div className={`dialouge ${mosesHere}`} onClick={shiftDialogue}>
         <h4 className={`dialouge ${mosesHere}`}>Moses</h4>
-        <p className={`dialouge ${mosesHere}`} onClick={shiftDialogue}>
-          {addLineBreaks(dialougeText)}
-        </p>
+        <p className={`dialouge ${mosesHere}`}>{addLineBreaks(dialougeText)}</p>
       </div>
+      <button className="orange" onClick={saveGame}>
+        Save Game
+      </button>
+      <br />
+      <button
+        className="orange"
+        onClick={() => {
+          localStorage.removeItem("sheepGameSave");
+          window.location.reload();
+        }}
+      >
+        New Game
+      </button>
     </>
   );
 }
