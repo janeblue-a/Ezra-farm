@@ -2,6 +2,7 @@ import "./App.css";
 import { useState, useEffect, Fragment } from "react";
 import sheep from "./Images/sheep.png";
 import moses from "./Images/moses.png";
+import bald from "./Images/bald.png";
 
 let shopIsOpen = false;
 
@@ -18,6 +19,9 @@ export default function App() {
   const [dialougeText, setDialogueText] = useState("im moses");
   const [mosesHere, setMosesHere] = useState("visible");
   const [isLoaded, setIsLoaded] = useState(false);
+  const [SaveGameUse, setSaveGameUse] = useState("Save Game");
+  const [sheepImage, setSheepImage] = useState(sheep);
+  const [shearsEquipped, setShearsEquipped] = useState(false);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -33,7 +37,7 @@ export default function App() {
       mosesHere,
     };
 
-    localStorage.setItem("sheepGameSave", JSON.stringify(saveData));
+    localStorage.setItem("ezrasheepsave", JSON.stringify(saveData));
   }, [
     carrotCount,
     treeCount,
@@ -58,11 +62,15 @@ export default function App() {
       mosesHere,
     };
 
-    localStorage.setItem("sheepGameSave", JSON.stringify(saveData));
+    localStorage.setItem("ezrasheepsave", JSON.stringify(saveData));
   };
 
+  function delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   useEffect(() => {
-    const savedGame = localStorage.getItem("sheepGameSave");
+    const savedGame = localStorage.getItem("ezrasheepsave");
 
     if (savedGame) {
       const data = JSON.parse(savedGame);
@@ -81,12 +89,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (hunger <= 0) return;
+    if (hunger <= 0) {
+      () => {
+        localStorage.removeItem("ezrasheepsave");
+        window.location.reload();
+      };
+    }
 
     const interval = setInterval(() => {
       setHunger((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
+          localStorage.removeItem("ezrasheepsave");
+          window.location.reload();
           return 0;
         }
         return prev - 1;
@@ -121,7 +136,11 @@ export default function App() {
   };
 
   const consumeFood = () => {
-    if (carrotOpen) {
+    if (shearsEquipped && sheepImage == sheep) {
+      setSheepImage(bald);
+      setShearsEquipped(false);
+      setMoney((prevMoney) => prevMoney + 40);
+    } else if (carrotOpen) {
       setHunger((prev) => prev + 15);
       setCarrotOpen(false);
     } else if (treeOpen) {
@@ -152,6 +171,14 @@ export default function App() {
     } else {
       shopIsOpen = false;
       setShop("invis");
+    }
+  };
+
+  const Shearing = () => {
+    if (!shearsEquipped) {
+      setShearsEquipped(true);
+    } else {
+      setShearsEquipped(false);
     }
   };
 
@@ -191,9 +218,16 @@ export default function App() {
       </Fragment>
     ));
 
+  const handleSaveClick = async () => {
+    setSaveGameUse("Saved!");
+    await delay(500);
+    setSaveGameUse("Save Game");
+  };
+
   return (
     <>
       <p className="power">Funds: ${money}</p>
+
       <div>
         <button className="buttton" onClick={carrotClick}>
           Carrot stack is {carrotCount}
@@ -210,7 +244,7 @@ export default function App() {
 
       <br />
 
-      <img onClick={consumeFood} className="ezrasheep" src={sheep} />
+      <img onClick={consumeFood} className="ezrasheep" src={sheepImage} />
 
       <div>
         <button className="right" onClick={openShop}>
@@ -230,19 +264,28 @@ export default function App() {
           Buy 10 Tree Leaf Bundles! (30)
         </button>
       </div>
+      <button className="shears shearsagain" onClick={Shearing}>
+        Shears
+      </button>
 
       <div className={`dialouge ${mosesHere}`} onClick={shiftDialogue}>
         <h4 className={`dialouge ${mosesHere}`}>Moses</h4>
         <p className={`dialouge ${mosesHere}`}>{addLineBreaks(dialougeText)}</p>
       </div>
-      <button className="orange" onClick={saveGame}>
-        Save Game
+      <button
+        className="orange"
+        onClick={() => {
+          saveGame();
+          handleSaveClick();
+        }}
+      >
+        {SaveGameUse}
       </button>
       <br />
       <button
         className="orange"
         onClick={() => {
-          localStorage.removeItem("sheepGameSave");
+          localStorage.removeItem("ezrasheepsave");
           window.location.reload();
         }}
       >
